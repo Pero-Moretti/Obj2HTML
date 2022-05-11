@@ -1,0 +1,11 @@
+/Dancer2-Plugin-Auth-OAuth-*
+/.build
+/_build*
+/Build
+/Makefile
+MYMETA.*
+!META.json
+/.prove
+*.swp
+/blib/
+/pm_to_blib
