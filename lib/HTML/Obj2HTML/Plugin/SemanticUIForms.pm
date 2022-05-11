@@ -1,56 +1,81 @@
-my @semanticnumbers = qw(zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen);
-HTML::Obj2HTML::register_extension("segment", {
-  tag => "div",
-  attr => { class => "ui segment" }
-});
 HTML::Obj2HTML::register_extension("form", {
   attr => { class => "ui form" }
-});
-HTML::Obj2HTML::register_extension("button", {
-  attr => { class => "ui button" }
-});
-HTML::Obj2HTML::register_extension("select", {
+});HTML::Obj2HTML::register_extension("select", {
   attr => { class => "ui dropdown" }
 });
-
-sub genhelplabel {
-  my $obj = shift;
-  if ($obj->{label}) {
-    my $label = $obj->{label};
-    if ($obj->{helptext}) {
-      $label = [ _ => $label, i => { style => 'margin-left: 5px;', class => 'blue circular icon help', 'data-content' => $obj->{helptext}, _ => [] } ];
-      delete($obj->{helptext});
+HTML::Obj2HTML::register_extension("checkbox", {
+  tag => "",
+  before => sub {
+    my $obj = shift;
+    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    delete($obj->{readonly});
+    if ($readonly) {
+      return Obj2HTML::gen([ div => [
+        if => { cond => $obj->{checked}, true => [ icon => 'green check' ], false => [ icon => 'red close' ]},
+        _ => " ".$obj->{label}
+      ]]);
+    } else {
+      my $label = $obj->{label}; delete($obj->{label});
+      if (!$label && $obj->{checkboxlabel}) { $label = $obj->{checkboxlabel}; delete($obj->{checkboxlabel}); }
+      if (!$obj->{value}) { $obj->{value} = 1; }
+      $obj->{if} = { cond => $obj->{checked}, true => { checked => 1 } }; delete($obj->{checked});
+      $obj->{type} = "checkbox";
+      return Obj2HTML::gen([
+        div => { class => 'ui checkbox', _ => [
+          input => $obj, label => $label
+        ] }
+      ]);
     }
-    if ($obj->{helphtml}) {
-      $label = [ _ => $label, i => { style => 'margin-left: 5px;', class => 'blue circular icon help', 'data-html' => $obj->{helphtml}, _ => [] } ];
-      delete($obj->{helphtml});
+  }
+});
+HTML::Obj2HTML::register_extension("radio", {
+  tag => "",
+  before => sub {
+    my $obj = shift;
+    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    delete($obj->{readonly});
+    if ($readonly) {
+      return Obj2HTML::gen([ div => [
+        if => { cond => $obj->{checked}, true => [ icon => 'check' ] },
+        _ => " ".$obj->{label}
+      ]]);
+    } else {
+      my $label = $obj->{label}; delete($obj->{label});
+      if (!$label && $obj->{radiolabel}) { $label = $obj->{radiolabel}; delete($obj->{radiolabel}); }
+      if (!$obj->{value}) { $obj->{value} = 1; }
+      $obj->{if} = { cond => $obj->{checked}, true => { checked => 1 } }; delete($obj->{checked});
+      $obj->{type} = "radio";
+      return Obj2HTML::gen([
+        div => { class => 'ui radio checkbox', _ => [
+          input => $obj, label => $label
+        ] }
+      ]);
     }
-    delete($obj->{label});
-    return $label;
   }
-  return;
-}
-sub commonfield {
-  my $obj = shift;
-  my $field = shift;
+});
+HTML::Obj2HTML::register_extension("labeledinput", {
+  tag => "",
+  before => sub {
+    my $obj = shift;
 
-  my $class = "field";
-  if ($obj->{required}) {
-    $class .= " required";
-    delete($obj->{required});
+    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    delete($obj->{readonly});
+    if ($readonly) {
+      return [ div => $obj->{value}." ".$obj->{$label} ];
+    } else {
+      my $label = $obj->{label}; delete($obj->{label});
+
+      # The has we were passed actually belongs to a child element, we need to copy and clear.
+      my $inputobj = {};
+      for (keys %$obj) { $inputobj->{$_} = $obj->{$_}; delete $obj->{$_}; }
+
+      return [ div => { class => "ui right labeled input", _ => [
+        input => $inputobj,
+        div => { class => "ui basic label", _ => $label }
+      ]}];
+    }
   }
-
-  my $label = genhelplabel($obj);
-  if ($label) {
-    unshift(@{$field}, "label", $label);
-  };
-  if ($obj->{uiwidth}) {
-    $class .= " $semanticnumbers[$obj->{uiwidth}] wide";
-    delete($obj->{uiwidth});
-  }
-  return [ div => { class => $class, _ => $field }];
-}
-
+});
 HTML::Obj2HTML::register_extension("field", {
   tag => 'div',
   before => sub {
@@ -247,7 +272,20 @@ HTML::Obj2HTML::register_extension("selectfield", {
 
   }
 });
-
+HTML::Obj2HTML::register_extension("dateinput", {
+  tag => "",
+  before => sub {
+    my $o = shift;
+    return Obj2HTML::gen([
+      div => { class => "ui calendar dateonly", _ => [
+        div => { class => "ui input left icon", _ => [
+          i => { class => "calendar icon", _ => [] },
+          input => $o
+        ]}
+      ]}
+    ]);
+  }
+});
 HTML::Obj2HTML::register_extension("datefield", {
   tag => "",
   before => sub {
@@ -305,218 +343,59 @@ HTML::Obj2HTML::register_extension("cancel", {
   },
 });
 
-
-my $stepcontent = {};
-my $steplabels = {};
-HTML::Obj2HTML::register_extension("steps", {
-  tag => "",
+HTML::Obj2HTML::register_extension("helplabel", {
+  tag => "label",
   before => sub {
     my $o = shift;
-    my $content = $o->{_};
-    $stepcontent->{$o->{id}} = [];
-    $steplabels->{$o->{id}} = [];
-    our $curstepid = $o->{id};
-    Obj2HTML::gen($content); # This processes it, but it doesn't actually generate anything, that's handled by the after()
-  },
-  after => sub {
-    my $o = shift;
-    my $id = "";
-    if (ref $o eq "HASH") { $id = $o->{id}; }
-    my $cls = Obj2HTML::combineClasses("ui steps", $o->{class});
-    my $ccls = Obj2HTML::combineClasses("stepcontent", $o->{contentclass});
-    return [
-      div => { "data-stepid" => $id, class => $cls, _ => \@{$steplabels->{$o->{id}}} },
-      div => { "data-stepid" => $id, class => $ccls, _ => \@{$stepcontent->{$o->{id}}} }
-    ];
-  }
-});
-HTML::Obj2HTML::register_extension("step", {
-  tag => "",
-  before => sub {
-    my $o = shift;
-    my @steplabels = @{$steplabels->{$curstepid}};
-    my $cnt = (($#steplabels+1)/2)+1; # -1 = no steps, start count from 1, therefore +2.
-    if (!@steplabels) {
-      push(@{$steplabels->{$curstepid}}, div => { "data-stepid" => $curstepid, class => 'active step', "data-stepnum" => $cnt, _ => $o->{label} });
-      push(@{$stepcontent->{$curstepid}}, div => { "data-stepid" => $curstepid, "data-stepnum" => $cnt, _ => $o->{_} });
-    } else {
-      push(@{$steplabels->{$curstepid}}, div => { "data-stepid" => $curstepid, class => 'step', "data-stepnum" => $cnt, _ => $o->{label} });
-      push(@{$stepcontent->{$curstepid}}, div => { "data-stepid" => $curstepid, "data-stepnum" => $cnt, style => 'display: none;', _ => $o->{_} });
+    $o->{_} = [ _ => $o->{label} ];
+    if ($o->{helptext}) {
+      push(@{$o->{_}}, help => { text => $o->{helptext} });
     }
-    return;
+    if ($o->{helphtml}) {
+      push(@{$o->{_}}, help => { html => $o->{helphtml} });
+    }
+    delete($o->{label});
+    delete($o->{helptext});
+    delete($o->{helphtml});
+    return "";
   }
 });
 
-HTML::Obj2HTML::register_extension("table", {
-  before => sub {
-    my $obj = shift;
-    if (ref $obj eq "HASH") {
-      if ($obj->{header}) {
-        push(@{$obj->{_}}, thead => [ tr => Obj2HTML::iterate("th", $obj->{header}) ]);
-        delete($obj->{header});
-      }
-      if ($obj->{rows}) {
-        my @allrows;
-        foreach my $r (@{$obj->{rows}}) {
-          my @cols = ();
-          foreach my $c (@{$r}) {
-            push(@cols, td => $c);
-          }
-          push(@allrows, tr => \@cols);
-        }
-        push(@{$obj->{_}}, tbody => \@allrows);
-        delete($obj->{rows});
-      }
-      return "";
-    }
-  },
-  attr => { class => 'ui celled table' }
-});
-HTML::Obj2HTML::register_extension("checkbox", {
-  tag => "",
-  before => sub {
-    my $obj = shift;
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
-    delete($obj->{readonly});
-    if ($readonly) {
-      return Obj2HTML::gen([ div => [
-        if => { cond => $obj->{checked}, true => [ icon => 'green check' ], false => [ icon => 'red close' ]},
-        _ => " ".$obj->{label}
-      ]]);
-    } else {
-      my $label = $obj->{label}; delete($obj->{label});
-      if (!$label && $obj->{checkboxlabel}) { $label = $obj->{checkboxlabel}; delete($obj->{checkboxlabel}); }
-      if (!$obj->{value}) { $obj->{value} = 1; }
-      $obj->{if} = { cond => $obj->{checked}, true => { checked => 1 } }; delete($obj->{checked});
-      $obj->{type} = "checkbox";
-      return Obj2HTML::gen([
-        div => { class => 'ui checkbox', _ => [
-          input => $obj, label => $label
-        ] }
-      ]);
-    }
-  }
-});
-HTML::Obj2HTML::register_extension("radio", {
-  tag => "",
-  before => sub {
-    my $obj = shift;
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
-    delete($obj->{readonly});
-    if ($readonly) {
-      return Obj2HTML::gen([ div => [
-        if => { cond => $obj->{checked}, true => [ icon => 'check' ] },
-        _ => " ".$obj->{label}
-      ]]);
-    } else {
-      my $label = $obj->{label}; delete($obj->{label});
-      if (!$label && $obj->{radiolabel}) { $label = $obj->{radiolabel}; delete($obj->{radiolabel}); }
-      if (!$obj->{value}) { $obj->{value} = 1; }
-      $obj->{if} = { cond => $obj->{checked}, true => { checked => 1 } }; delete($obj->{checked});
-      $obj->{type} = "radio";
-      return Obj2HTML::gen([
-        div => { class => 'ui radio checkbox', _ => [
-          input => $obj, label => $label
-        ] }
-      ]);
-    }
-  }
-});
-HTML::Obj2HTML::register_extension("labeledinput", {
-  tag => "",
-  before => sub {
-    my $obj = shift;
-
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
-    delete($obj->{readonly});
-    if ($readonly) {
-      return [ div => $obj->{value}." ".$obj->{$label} ];
-    } else {
-      my $label = $obj->{label}; delete($obj->{label});
-
-      # The has we were passed actually belongs to a child element, we need to copy and clear.
-      my $inputobj = {};
-      for (keys %$obj) { $inputobj->{$_} = $obj->{$_}; delete $obj->{$_}; }
-
-      return [ div => { class => "ui right labeled input", _ => [
-        input => $inputobj,
-        div => { class => "ui basic label", _ => $label }
-      ]}];
-    }
-  }
-});
-
-
-
-# Menus etc
-HTML::Obj2HTML::register_extension("dropdownmenu", {
-  tag => "div",
-  attr => { class => "ui dropdown item" },
-  before => sub {
-    my $obj = shift;
-
+sub genhelplabel {
+  my $obj = shift;
+  if ($obj->{label}) {
     my $label = $obj->{label};
+    if ($obj->{helptext}) {
+      $label = [ _ => $label, i => { style => 'margin-left: 5px;', class => 'blue circular icon help', 'data-content' => $obj->{helptext}, _ => [] } ];
+      delete($obj->{helptext});
+    }
+    if ($obj->{helphtml}) {
+      $label = [ _ => $label, i => { style => 'margin-left: 5px;', class => 'blue circular icon help', 'data-html' => $obj->{helphtml}, _ => [] } ];
+      delete($obj->{helphtml});
+    }
     delete($obj->{label});
-
-    my $items = $obj->{items};
-    foreach my $i (@{$items}) {
-      if (ref $i eq "HASH") {
-        if ($i->{class}) { $i->{class}.= " "; }
-        $i->{class} .= "item";
-      }
-    }
-    delete($obj->{items});
-
-    $obj->{_} = [
-      _ => $label." ",
-      i => { class => "dropdown icon" },
-      div => { class => "menu", _ => $items }
-    ];
-    return;
+    return $label;
   }
-});
-HTML::Obj2HTML::register_extension("icon", {
-  tag => "i",
-  scalarattr => "class",
-  attr => { class => "icon" }
-});
+  return;
+}
+sub commonfield {
+  my $obj = shift;
+  my $field = shift;
 
-HTML::Obj2HTML::register_extension("grid", {
-  tag => "div",
-  before => sub {
-    my $o = shift;
-    if (ref $o eq "HASH" && $o->{columns}) {
-      if ($o->{class}) { $o->{class} .= " "; }
-      $o->{class} .= $semanticnumbers[$o->{columns}]." column";
-      delete($o->{columns});
-      return "";
-    }
-  },
-  attr => { class => "ui grid" }
-});
+  my $class = "field";
+  if ($obj->{required}) {
+    $class .= " required";
+    delete($obj->{required});
+  }
 
-HTML::Obj2HTML::register_extension("row", {
-  tag => "div",
-  attr => { class => "row" }
-});
-
-HTML::Obj2HTML::register_extension("column", {
-  tag => "div",
-  before => sub {
-    my $o = shift;
-    if (ref $o eq "HASH" && $o->{wide}) {
-      if ($o->{class}) { $o->{class} .= " "; }
-      $o->{class} .= $semanticnumbers[$o->{wide}]." wide";
-      delete($o->{wide});
-      return "";
-    }
-  },
-  attr => { class => "column" }
-});
-
-HTML::Obj2HTML::register_extension("highlightbox", {
-  tag => "div",
-  attr => { class => "ui yellow message"}
-});
-
+  my $label = genhelplabel($obj);
+  if ($label) {
+    unshift(@{$field}, "label", $label);
+  };
+  if ($obj->{uiwidth}) {
+    $class .= " $semanticnumbers[$obj->{uiwidth}] wide";
+    delete($obj->{uiwidth});
+  }
+  return [ div => { class => $class, _ => $field }];
+}
 1;
