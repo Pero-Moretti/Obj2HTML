@@ -37,6 +37,8 @@ my $html_fromarrayref_format = 0;
 # Default currency to use
 my $default_currency = "GBP";
 
+my $db;
+
 # Load up the extensions
 plugins();
 
@@ -215,6 +217,10 @@ sub set_opt {
 sub get_opt {
   my $key = shift;
   return $opt{$key};
+}
+
+sub set_dbh {
+  $db = shift;
 }
 
 sub set_dictionary {
