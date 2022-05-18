@@ -245,6 +245,18 @@ sub get_snippet {
   my $name = shift;
   return $snippets->{$name};
 }
+sub append_snippet {
+  my $name = shift;
+  my $obj = shift;
+  if (ref $snippets->{$name} ne "ARRAY") {
+    return;
+  }
+  if (!ref $obj) {
+    my $args = shift;
+    $obj = fetch($obj, $args);
+  }
+  push(@{$snippets->{$name}}, $obj);
+}
 
 
 
