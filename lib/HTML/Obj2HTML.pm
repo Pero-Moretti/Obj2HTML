@@ -37,7 +37,7 @@ my $html_fromarrayref_format = 0;
 # Default currency to use
 my $default_currency = "GBP";
 
-my $db;
+our $db;
 
 # Load up the extensions
 plugins();

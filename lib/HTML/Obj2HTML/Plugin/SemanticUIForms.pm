@@ -183,7 +183,7 @@ HTML::Obj2HTML::register_extension("selectfield", {
     $obj->{class}.= "ui dropdown";
 #    if ($obj->{multiple}) { $obj->{class}.= " fluid"; }
 
-    my $db = $obj->{db} || $Obj2HTML::db;
+    my $db = $obj->{db} || $HTML::Obj2HTML::db;
     delete($obj->{db});
 
     if ($obj->{options} && ref $obj->{options} eq "ARRAY") {
