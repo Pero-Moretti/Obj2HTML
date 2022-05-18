@@ -7,10 +7,10 @@ HTML::Obj2HTML::register_extension("checkbox", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
-      return Obj2HTML::gen([ div => [
+      return HTML::Obj2HTML::gen([ div => [
         if => { cond => $obj->{checked}, true => [ icon => 'green check' ], false => [ icon => 'red close' ]},
         _ => " ".$obj->{label}
       ]]);
@@ -20,7 +20,7 @@ HTML::Obj2HTML::register_extension("checkbox", {
       if (!$obj->{value}) { $obj->{value} = 1; }
       $obj->{if} = { cond => $obj->{checked}, true => { checked => 1 } }; delete($obj->{checked});
       $obj->{type} = "checkbox";
-      return Obj2HTML::gen([
+      return HTML::Obj2HTML::gen([
         div => { class => 'ui checkbox', _ => [
           input => $obj, label => $label
         ] }
@@ -32,10 +32,10 @@ HTML::Obj2HTML::register_extension("radio", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
-      return Obj2HTML::gen([ div => [
+      return HTML::Obj2HTML::gen([ div => [
         if => { cond => $obj->{checked}, true => [ icon => 'check' ] },
         _ => " ".$obj->{label}
       ]]);
@@ -45,7 +45,7 @@ HTML::Obj2HTML::register_extension("radio", {
       if (!$obj->{value}) { $obj->{value} = 1; }
       $obj->{if} = { cond => $obj->{checked}, true => { checked => 1 } }; delete($obj->{checked});
       $obj->{type} = "radio";
-      return Obj2HTML::gen([
+      return HTML::Obj2HTML::gen([
         div => { class => 'ui radio checkbox', _ => [
           input => $obj, label => $label
         ] }
@@ -58,7 +58,7 @@ HTML::Obj2HTML::register_extension("labeledinput", {
   before => sub {
     my $obj = shift;
 
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return [ div => $obj->{value}." ".$obj->{$label} ];
@@ -105,14 +105,14 @@ HTML::Obj2HTML::register_extension("checkboxfield", {
   tag => "",
   before => sub {
     my $obj = shift;
-    return Obj2HTML::gen(commonfield($obj, [ checkbox => $obj ]));
+    return HTML::Obj2HTML::gen(commonfield($obj, [ checkbox => $obj ]));
   }
 });
 HTML::Obj2HTML::register_extension("radiofield", {
   tag => "",
   before => sub {
     my $obj = shift;
-    return Obj2HTML::gen(commonfield($obj, [ radio => $obj ]));
+    return HTML::Obj2HTML::gen(commonfield($obj, [ radio => $obj ]));
   }
 });
 
@@ -120,12 +120,12 @@ HTML::Obj2HTML::register_extension("inputfield", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
-      return Obj2HTML::gen(commonfield($obj, [ span => $obj->{value} ]));
+      return HTML::Obj2HTML::gen(commonfield($obj, [ span => $obj->{value} ]));
     } else {
-      return Obj2HTML::gen(commonfield($obj, [ input => $obj ]));
+      return HTML::Obj2HTML::gen(commonfield($obj, [ input => $obj ]));
     }
   }
 });
@@ -145,16 +145,16 @@ HTML::Obj2HTML::register_extension("textareafield", {
       $obj->{_} = "";
     }
 
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       if ($obj->{class} =~ /editor/) {
-        return Obj2HTML::gen(commonfield($obj, [ div => [ raw => $obj->{_} ] ]));
+        return HTML::Obj2HTML::gen(commonfield($obj, [ div => [ raw => $obj->{_} ] ]));
       } else {
-        return Obj2HTML::gen(commonfield($obj, [ div => [ md => $obj->{_} ] ]));
+        return HTML::Obj2HTML::gen(commonfield($obj, [ div => [ md => $obj->{_} ] ]));
       }
     } else {
-      return Obj2HTML::gen(commonfield($obj, [ textarea => $obj ]));
+      return HTML::Obj2HTML::gen(commonfield($obj, [ textarea => $obj ]));
     }
 
   }
@@ -176,7 +176,7 @@ HTML::Obj2HTML::register_extension("selectfield", {
   before => sub {
     my $obj = shift;
 
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
 
     if ($obj->{class}) { $obj->{class}.=" "; }
@@ -265,9 +265,9 @@ HTML::Obj2HTML::register_extension("selectfield", {
     delete($obj->{inclblank});
 
     if ($readonly) {
-      return Obj2HTML::gen(commonfield($obj, $obj->{_}));
+      return HTML::Obj2HTML::gen(commonfield($obj, $obj->{_}));
     } else {
-      return Obj2HTML::gen(commonfield($obj, [ select => $obj ]));
+      return HTML::Obj2HTML::gen(commonfield($obj, [ select => $obj ]));
     }
 
   }
@@ -276,7 +276,7 @@ HTML::Obj2HTML::register_extension("dateinput", {
   tag => "",
   before => sub {
     my $o = shift;
-    return Obj2HTML::gen([
+    return HTML::Obj2HTML::gen([
       div => { class => "ui calendar dateonly", _ => [
         div => { class => "ui input left icon", _ => [
           i => { class => "calendar icon", _ => [] },
@@ -291,12 +291,12 @@ HTML::Obj2HTML::register_extension("datefield", {
   before => sub {
     my $obj = shift;
 
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
-      return Obj2HTML::gen(commonfield($obj, [ span => $obj->{value} ] ));
+      return HTML::Obj2HTML::gen(commonfield($obj, [ span => $obj->{value} ] ));
     } else {
-      return Obj2HTML::gen(commonfield($obj, [
+      return HTML::Obj2HTML::gen(commonfield($obj, [
           div => { class => "ui calendar ".$obj->{class}, _ => [
             div => { class => "ui input left icon", _ => [
               i => { class => "calendar icon", _ => [] },
@@ -315,7 +315,7 @@ HTML::Obj2HTML::register_extension("submit", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return [];
@@ -331,7 +331,7 @@ HTML::Obj2HTML::register_extension("cancel", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return [];

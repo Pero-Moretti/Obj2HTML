@@ -1166,7 +1166,7 @@ Here's an example of using before and after to produce tabs:
         my $obj = shift;
         @curtabs = ();
         @content = ();
-        return Obj2HTML::gen($obj);
+        return HTML::Obj2HTML::gen($obj);
       },
       after => sub {
         my $obj = shift;
@@ -1178,9 +1178,9 @@ Here's an example of using before and after to produce tabs:
           foreach my $k (%{$obj}) {
             if (defined $divinner->{$k}) { $divinner->{$k} .= " ".$obj->{$k}; } else { $divinner->{$k} = $obj->{$k}; }
           }
-          return Obj2HTML::gen([ div => $divinner, \@content ]);
+          return HTML::Obj2HTML::gen([ div => $divinner, \@content ]);
         } else {
-          return Obj2HTML::gen([ div => { class => "ui top attached tabular menu", _ => \@tabs }, \@content ]);
+          return HTML::Obj2HTML::gen([ div => { class => "ui top attached tabular menu", _ => \@tabs }, \@content ]);
         }
       }
     });

@@ -32,7 +32,7 @@ HTML::Obj2HTML::register_extension("table", {
     my $obj = shift;
     if (ref $obj eq "HASH") {
       if ($obj->{header}) {
-        push(@{$obj->{_}}, thead => [ tr => Obj2HTML::iterate("th", $obj->{header}) ]);
+        push(@{$obj->{_}}, thead => [ tr => HTML::Obj2HTML::iterate("th", $obj->{header}) ]);
         delete($obj->{header});
       }
       if ($obj->{rows}) {

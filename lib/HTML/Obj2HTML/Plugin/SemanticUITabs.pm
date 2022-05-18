@@ -8,7 +8,7 @@ HTML::Obj2HTML::register_extension("tabsection", {
     my $obj = shift;
     @curtabs = ();
     @content = ();
-    return Obj2HTML::gen($obj);
+    return HTML::Obj2HTML::gen($obj);
   },
   after => sub {
     my $obj = shift;
@@ -20,9 +20,9 @@ HTML::Obj2HTML::register_extension("tabsection", {
       foreach my $k (%{$obj}) {
         if (defined $divinner->{$k}) { $divinner->{$k} .= " ".$obj->{$k}; } else { $divinner->{$k} = $obj->{$k}; }
       }
-      return Obj2HTML::gen([ div => $divinner, \@content ]);
+      return HTML::Obj2HTML::gen([ div => $divinner, \@content ]);
     } else {
-      return Obj2HTML::gen([ div => { class => "ui top attached tabular menu", _ => \@tabs }, \@content ]);
+      return HTML::Obj2HTML::gen([ div => { class => "ui top attached tabular menu", _ => \@tabs }, \@content ]);
     }
   }
 });
@@ -48,14 +48,14 @@ HTML::Obj2HTML::register_extension("steps", {
     $stepcontent->{$o->{id}} = [];
     $steplabels->{$o->{id}} = [];
     our $curstepid = $o->{id};
-    Obj2HTML::gen($content); # This processes it, but it doesn't actually generate anything, that's handled by the after()
+    HTML::Obj2HTML::gen($content); # This processes it, but it doesn't actually generate anything, that's handled by the after()
   },
   after => sub {
     my $o = shift;
     my $id = "";
     if (ref $o eq "HASH") { $id = $o->{id}; }
-    my $cls = Obj2HTML::combineClasses("ui steps", $o->{class});
-    my $ccls = Obj2HTML::combineClasses("stepcontent", $o->{contentclass});
+    my $cls = HTML::Obj2HTML::combineClasses("ui steps", $o->{class});
+    my $ccls = HTML::Obj2HTML::combineClasses("stepcontent", $o->{contentclass});
     return [
       div => { "data-stepid" => $id, class => $cls, _ => \@{$steplabels->{$o->{id}}} },
       div => { "data-stepid" => $id, class => $ccls, _ => \@{$stepcontent->{$o->{id}}} }
