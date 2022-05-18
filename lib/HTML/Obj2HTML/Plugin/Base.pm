@@ -15,7 +15,7 @@ HTML::Obj2HTML::register_extension("editable", {
   tag => "",
   before => sub {
     my $o = shift;
-    my $prevro = HTML::Obj2HTML::getopt("readonly");
+    my $prevro = HTML::Obj2HTML::get_opt("readonly");
     HTML::Obj2HTML::setopt("readonly", 0);
     my $ret = HTML::Obj2HTML::gen($o);
     HTML::Obj2HTML::setopt("readonly", $prevro);
@@ -26,7 +26,7 @@ HTML::Obj2HTML::register_extension("readonly", {
   tag => "",
   before => sub {
     my $o = shift;
-    my $prevro = HTML::Obj2HTML::getopt("readonly");
+    my $prevro = HTML::Obj2HTML::get_opt("readonly");
     HTML::Obj2HTML::setopt("readonly", 1);
     my $ret = HTML::Obj2HTML::gen($o);
     HTML::Obj2HTML::setopt("readonly", $prevro);
@@ -39,7 +39,7 @@ HTML::Obj2HTML::register_extension("ifReadOnly", {
   before => sub {
     my $o = shift;
     if (ref $o eq "HASH") {
-      $o->{cond} = HTML::Obj2HTML::getopt('readonly');
+      $o->{cond} = HTML::Obj2HTML::get_opt('readonly');
     }
     return "";
   }
@@ -49,7 +49,7 @@ HTML::Obj2HTML::register_extension("ifEditable", {
   before => sub {
     my $o = shift;
     if (ref $o eq "HASH") {
-      $o->{cond} = !Obj2HTML::getopt("readonly");
+      $o->{cond} = !Obj2HTML::get_opt("readonly");
     }
     return "";
   }

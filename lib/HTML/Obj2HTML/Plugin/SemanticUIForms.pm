@@ -7,7 +7,7 @@ HTML::Obj2HTML::register_extension("checkbox", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return HTML::Obj2HTML::gen([ div => [
@@ -32,7 +32,7 @@ HTML::Obj2HTML::register_extension("radio", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return HTML::Obj2HTML::gen([ div => [
@@ -58,7 +58,7 @@ HTML::Obj2HTML::register_extension("labeledinput", {
   before => sub {
     my $obj = shift;
 
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return [ div => $obj->{value}." ".$obj->{$label} ];
@@ -120,7 +120,7 @@ HTML::Obj2HTML::register_extension("inputfield", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return HTML::Obj2HTML::gen(commonfield($obj, [ span => $obj->{value} ]));
@@ -145,7 +145,7 @@ HTML::Obj2HTML::register_extension("textareafield", {
       $obj->{_} = "";
     }
 
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       if ($obj->{class} =~ /editor/) {
@@ -176,7 +176,7 @@ HTML::Obj2HTML::register_extension("selectfield", {
   before => sub {
     my $obj = shift;
 
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
 
     if ($obj->{class}) { $obj->{class}.=" "; }
@@ -291,7 +291,7 @@ HTML::Obj2HTML::register_extension("datefield", {
   before => sub {
     my $obj = shift;
 
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return HTML::Obj2HTML::gen(commonfield($obj, [ span => $obj->{value} ] ));
@@ -315,7 +315,7 @@ HTML::Obj2HTML::register_extension("submit", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return [];
@@ -331,7 +331,7 @@ HTML::Obj2HTML::register_extension("cancel", {
   tag => "",
   before => sub {
     my $obj = shift;
-    my $readonly = HTML::Obj2HTML::getopt("readonly") || $obj->{readonly};
+    my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
       return [];
