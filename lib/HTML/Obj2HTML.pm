@@ -248,7 +248,9 @@ sub get_snippet {
 sub append_snippet {
   my $name = shift;
   my $obj = shift;
-  if (ref $snippets->{$name} ne "ARRAY") {
+  if (!defined $snippets->{$name}) {
+    $snippets->{$name} = [];
+  } elsif (ref $snippets->{$name} ne "ARRAY") {
     return;
   }
   if (!ref $obj) {
