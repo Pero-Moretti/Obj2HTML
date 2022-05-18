@@ -16,9 +16,9 @@ HTML::Obj2HTML::register_extension("editable", {
   before => sub {
     my $o = shift;
     my $prevro = HTML::Obj2HTML::get_opt("readonly");
-    HTML::Obj2HTML::setopt("readonly", 0);
+    HTML::Obj2HTML::set_opt("readonly", 0);
     my $ret = HTML::Obj2HTML::gen($o);
-    HTML::Obj2HTML::setopt("readonly", $prevro);
+    HTML::Obj2HTML::set_opt("readonly", $prevro);
     return $ret;
   }
 });
@@ -27,9 +27,9 @@ HTML::Obj2HTML::register_extension("readonly", {
   before => sub {
     my $o = shift;
     my $prevro = HTML::Obj2HTML::get_opt("readonly");
-    HTML::Obj2HTML::setopt("readonly", 1);
+    HTML::Obj2HTML::set_opt("readonly", 1);
     my $ret = HTML::Obj2HTML::gen($o);
-    HTML::Obj2HTML::setopt("readonly", $prevro);
+    HTML::Obj2HTML::set_opt("readonly", $prevro);
     return $ret;
   }
 });
