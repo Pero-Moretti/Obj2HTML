@@ -209,6 +209,11 @@ my %tags = (
   wbr => END_TAG_FORBIDDEN
 );
 
+sub flush {
+  %opt = ();
+  %dictionary = ();
+  $snippets = {};
+}
 sub set_opt {
   my $key = shift;
   my $val = shift;
@@ -673,27 +678,28 @@ sub gen {
             $content = $attrs{$k} || '';
 
           } elsif (ref $attrs{$k} eq "HASH") {
-            if (defined $attrs{$k}->{if}) {
+            if ($k eq "if") {
+              my $val = $attrs{$k};
+              if ($val->{cond} && $val->{true}) {
+                foreach my $newk (keys(%{$val->{true}})) {
+                  $ret .= format_attr($newk, $val->{true}->{$newk})
+                }
+              } elsif (!$val->{cond} && $val->{false}) {
+                foreach my $newk (keys(%{$val->{false}})) {
+                  $ret .= format_attr($newk, $val->{false}->{$newk})
+                }
+              }
+            } elsif (defined $attrs{$k}->{if}) {
               if ($attrs{$k}->{if} && defined $attrs{$k}->{true}) {
                 $ret .= format_attr($k, $attrs{$k}->{true});
               } elsif (!$attrs{$k}->{if} && defined $attrs{$k}->{false}) {
                 $ret .= format_attr($k, $attrs{$k}->{false});
               }
             }
+
           } elsif ($k eq "_") {
             $content = $attrs{$k} || '';
 
-          } elsif ($k eq "if") {
-            my $val = $attrs{$k};
-            if ($val->{cond} && $val->{true}) {
-              foreach my $newk (keys(%{$val->{true}})) {
-                $ret .= " $newk=\"".web_escape($val->{true}->{newk})."\"";
-              }
-            } elsif ($val->{false}) {
-              foreach my $newk (keys(%{$val->{false}})) {
-                $ret .= " $newk=\"".web_escape($val->{false}->{newk})."\"";
-              }
-            }
           } else {
             $ret .= format_attr($k, $attrs{$k});
           }
