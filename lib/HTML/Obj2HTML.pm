@@ -27,6 +27,8 @@ my $snippets = {};
 # A dictionary of substitutions are stored here and can be referenced in _content_
 my %dictionary;
 
+my %dofiles;
+
 # Whether or not to close empty tags with /
 my $mode = "XHTML";
 # Whether or not to output a warning when something that doesn't look like a valid
@@ -337,6 +339,10 @@ sub fetch {
         carp "Do failed for $f bang error: $!\n";
       }
     }
+    if (ref $fetch eq "CODE") {
+      $fetch = $fetch->($args);
+    }
+
   } else {
     my $pwd = `pwd`;
     chomp($pwd);

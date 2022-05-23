@@ -6,7 +6,7 @@ HTML::Obj2HTML::register_extension("tabsection", {
   tag => "",
   before => sub {
     my $obj = shift;
-    @curtabs = ();
+    @tabs = ();
     @content = ();
     return HTML::Obj2HTML::gen($obj);
   },
