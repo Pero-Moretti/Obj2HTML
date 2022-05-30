@@ -1,4 +1,7 @@
 package HTML::Obj2HTML;
+
+$HTML::Obj2HTML::VERSION = '0.1';
+
 use Carp;
 use HTML::Entities;
 use Text::Markdown;
@@ -627,7 +630,22 @@ sub gen {
       $ret .= "<script language='javascript' type='text/javascript' defer='1'><!--\n$attr\n//--></script>";
 
     } elsif ($tag eq "includejs") {
-      $ret .= "<script language='javascript' type='text/javascript' defer='1' src='$attr'></script>";
+      if (!ref $attr) {
+        $ret .= "<script language='javascript' type='text/javascript' defer='1' async='1' src='$attr'></script>";
+      } elsif (ref $attr == "HASH") {
+        $ret .= "<script language='javascript' type='text/javascript' ";
+        if ($attr->{defer}) {
+          $ret .= "defer='1' ";
+        }
+        if ($attr->{async}) {
+          $ret .= "async='1' ";
+        }
+        $ret .= "src='$attr->{src}'></script>";
+      }
+
+
+    } elsif ($tag eq "includecss") {
+      $ret .= "<link rel='stylesheet' type='text/css' href='$attr' />";
 
     } elsif ($tag eq "doctype") {
       $ret .= "<!DOCTYPE $attr>";
@@ -676,6 +694,7 @@ sub gen {
         foreach my $k (keys(%attrs)) {
           if (ref $k eq "ARRAY") {
             $content = $k;
+
           } elsif (ref $attrs{$k} eq "ARRAY") {
             # shorthand, you can defined the content within the classname, e.g. div => { "ui segment" => [ _ => "Content" ] }
             if ($k ne "_") {
@@ -684,7 +703,14 @@ sub gen {
             $content = $attrs{$k} || '';
 
           } elsif (ref $attrs{$k} eq "HASH") {
-            if ($k eq "if") {
+
+            if ($k eq "style") {
+              my @styles = ();
+              while (($csskey, $cssval) = each(%{$attrs{$k}})) {
+                push(@styles, $csskey.":".$cssval.";");
+              }
+              $ret .= format_attr("style", join("",@styles));
+            } elsif ($k eq "if") {
               my $val = $attrs{$k};
               if ($val->{cond} && $val->{true}) {
                 foreach my $newk (keys(%{$val->{true}})) {
