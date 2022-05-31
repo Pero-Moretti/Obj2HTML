@@ -1,3 +1,9 @@
+package HTML::Obj2HTML::Plugin::SemanticUI;
+
+use strict;
+use warnings;
+
+my @semanticnumbers = qw(zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen);
 HTML::Obj2HTML::register_extension("form", {
   attr => { class => "ui form" }
 });HTML::Obj2HTML::register_extension("select", {
@@ -61,7 +67,7 @@ HTML::Obj2HTML::register_extension("labeledinput", {
     my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
-      return [ div => $obj->{value}." ".$obj->{$label} ];
+      return [ div => $obj->{value}." ".$obj->{label} ];
     } else {
       my $label = $obj->{label}; delete($obj->{label});
 
@@ -239,7 +245,7 @@ HTML::Obj2HTML::register_extension("selectfield", {
         } else {
           if (defined $obj->{selectedfield} && $r->{$obj->{selectedfield}}) {
             $opt->{selected} = 1;
-          } elsif (defined $obj->{value} && ($obj->{value} & $v)) {
+          } elsif (defined $obj->{value} && ($obj->{value} & $r->{$obj->{valuefield}})) {
             $opt->{selected} = 1;
           }
           if (defined $obj->{values}) {

@@ -1,4 +1,7 @@
-package HTML::Obj2HTML::tabsection;
+package HTML::Obj2HTML::Plugin::SemanticUI;
+
+use strict;
+use warnings;
 
 my @tabs = ();
 my @content = ();
@@ -40,6 +43,7 @@ HTML::Obj2HTML::register_extension("tab", {
 
 my $stepcontent = {};
 my $steplabels = {};
+my $curstepid;
 HTML::Obj2HTML::register_extension("steps", {
   tag => "",
   before => sub {
@@ -47,7 +51,7 @@ HTML::Obj2HTML::register_extension("steps", {
     my $content = $o->{_};
     $stepcontent->{$o->{id}} = [];
     $steplabels->{$o->{id}} = [];
-    our $curstepid = $o->{id};
+    $curstepid = $o->{id};
     HTML::Obj2HTML::gen($content); # This processes it, but it doesn't actually generate anything, that's handled by the after()
   },
   after => sub {

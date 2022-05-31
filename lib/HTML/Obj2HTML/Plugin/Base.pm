@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 HTML::Obj2HTML::register_extension("repeat", {
   tag => "",
   before => sub {

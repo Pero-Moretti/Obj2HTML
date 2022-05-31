@@ -1,5 +1,8 @@
 use Storable 'dclone';
 
+use strict;
+use warnings;
+
 HTML::Obj2HTML::register_extension("dbtable", {
   tag => "table",
   before => sub {

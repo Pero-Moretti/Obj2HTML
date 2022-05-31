@@ -2,6 +2,9 @@ package HTML::Obj2HTML;
 
 $HTML::Obj2HTML::VERSION = '0.1';
 
+use strict;
+use warnings;
+
 use Carp;
 use HTML::Entities;
 use Text::Markdown;
@@ -48,40 +51,45 @@ our $db;
 plugins();
 
 sub import {
-  my %opts = @_;
-  # Look in _components to register other components
-  if ($opts{components}) {
-    foreach my $file (split("\n", `find $opts{components} -name "*.po"`)) {
-      chomp($file);
-      my $l = $file;
-      $l =~ s/$opts{components}\///;
-      $l =~ s/\.po$//;
-      $l =~ s/\//::/g;
-      #print STDERR "HTML::Obj2HTML registering component $l\n";
-      HTML::Obj2HTML::register_extension($l, {
-        tag => "",
-        before => sub {
-          my $o = shift;
-          if (ref $o eq "HASH") {
-            return HTML::Obj2HTML::fetch($file, $o);
-          } else {
-            return HTML::Obj2HTML::fetch($file, { _ => $o });
+  my @extra = ();
+  while (my $opt = shift) {
+    if ($opt eq "components") {
+      my $arg = shift;
+      foreach my $file (split("\n", `find $arg -name "*.po"`)) {
+        chomp($file);
+        my $l = $file;
+        $l =~ s/$arg\///;
+        $l =~ s/\.po$//;
+        $l =~ s/\//::/g;
+        #print STDERR "HTML::Obj2HTML registering component $l\n";
+        HTML::Obj2HTML::register_extension($l, {
+          tag => "",
+          before => sub {
+            my $o = shift;
+            if (ref $o eq "HASH") {
+              return HTML::Obj2HTML::fetch($file, $o);
+            } else {
+              return HTML::Obj2HTML::fetch($file, { _ => $o });
+            }
           }
-        }
-      });
+        });
+      }
     }
-  }
-  if ($opts{"default_currency"}) {
-    $default_currency = $opts{"default_currency"};
-  }
-  if ($opts{mode}) {
-    $mode = $opts{mode};
-  }
-  if ($opts{"warn_on_unknown_tag"}) {
-    $warn_on_unknown_tag = $opts{"warn_on_unknown_tag"};
-  }
-  if ($opts{"html_fromarrayref_format"}) {
-    $html_fromarrayref_format = $opts{"html_fromarrayref_format"};
+    elsif ($opt eq "default_currency") {
+      $default_currency = shift;
+    }
+    elsif ($opt eq "mode") {
+      $mode = shift;
+    }
+    elsif ($opt eq "warn_on_unknown_tag") {
+      $warn_on_unknown_tag = shift;
+    }
+    elsif ($opt eq "html_fromarrayref_format") {
+      $html_fromarrayref_format = shift;
+    }
+    else {
+      push(@extra, $opt);
+    }
   }
 }
 
@@ -322,10 +330,10 @@ sub fetchraw {
   if (-e $f) {
     local($/);
     open(RAWFILE, $f);
-    $raw = <RAWFILE>;
+    $rawfile = <RAWFILE>;
     close(RAWFILE);
   }
-  return $raw;
+  return $rawfile;
 }
 sub fetch {
   my $f = shift;
@@ -372,7 +380,7 @@ sub append {
   my $inserto = shift;
   my $args = shift;
   if (!ref $inserto && $inserto =~ /staticfile:(.*)/) {
-    $insertto = HTML::Obj2HTML::fetchraw($1);
+    $inserto = HTML::Obj2HTML::fetchraw($1);
   } elsif (!ref $inserto && $inserto =~ /file:(.*)/) {
     $inserto = fetch($1, $args);
   }
@@ -384,7 +392,7 @@ sub append {
     } elsif (ref $e->[1] eq "ARRAY") {
       $e->[1] = { _ => $e->[1] };
     }
-    push(@{$e->[1]->{_}}, @{$inserto});
+    CORE::push(@{$e->[1]->{_}}, @{$inserto});
   }
 }
 sub prepend {
@@ -392,7 +400,7 @@ sub prepend {
   my $inserto = shift;
   my $args = shift;
   if (!ref $inserto && $inserto =~ /staticfile:(.*)/) {
-    $insertto = HTML::Obj2HTML::fetchraw($1);
+    $inserto = HTML::Obj2HTML::fetchraw($1);
   } elsif (!ref $inserto && $inserto =~ /file:(.*)/) {
     $inserto = fetch($1, $args);
   }
@@ -427,9 +435,9 @@ sub find {
         find($attrs{_}, $query, $ret);
       }
       if ($query =~ /\#(.*)/ && $attrs{id} eq $1) {
-        push(@{$ret}, [$tag, $attr]);
+        CORE::push(@{$ret}, [$tag, $attr]);
       } elsif ($query =~ /^([^\#\.]\S*)/ && $tag eq $1) {
-        push(@{$ret}, [$tag, $attr]);
+        CORE::push(@{$ret}, [$tag, $attr]);
       }
     }
   }
@@ -624,7 +632,7 @@ sub gen {
       }
 
     } elsif ($tag eq "include") {
-      $ret .= HTML::Obj2HTML::gen(HTML::Obj2HTML::fetch($components.$o->{src}.".po", $attr));
+      $ret .= HTML::Obj2HTML::gen(HTML::Obj2HTML::fetch($o->{src}.".po", $attr));
 
     } elsif ($tag eq "javascript") {
       $ret .= "<script language='javascript' type='text/javascript' defer='1'><!--\n$attr\n//--></script>";
@@ -706,8 +714,8 @@ sub gen {
 
             if ($k eq "style") {
               my @styles = ();
-              while (($csskey, $cssval) = each(%{$attrs{$k}})) {
-                push(@styles, $csskey.":".$cssval.";");
+              while (my ($csskey, $cssval) = each(%{$attrs{$k}})) {
+                CORE::push(@styles, $csskey.":".$cssval.";");
               }
               $ret .= format_attr("style", join("",@styles));
             } elsif ($k eq "if") {
@@ -807,7 +815,7 @@ sub markdown {
   my $txt = shift;
   $txt = substitute_dictionary($txt);
   my $m = new Text::Markdown;
-  $val = $m->markdown($txt);
+  my $val = $m->markdown($txt);
   return $val;
 }
 

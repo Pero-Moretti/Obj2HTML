@@ -1,3 +1,8 @@
+package HTML::Obj2HTML::Plugin::SemanticUI;
+
+use strict;
+use warnings;
+
 my @semanticnumbers = qw(zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen);
 HTML::Obj2HTML::register_extension("segment", {
   tag => "div",
