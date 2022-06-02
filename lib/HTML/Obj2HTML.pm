@@ -898,7 +898,7 @@ An Obj2HTML arrayref is a structure that when processed is turned into HTML.
 Without HTML::FromArrayref format eanbled, it looks like this:
 
     [
-       docroot,
+       doctype => "HTML",
        html => [
          head => [
            script => { ... },
@@ -956,7 +956,7 @@ You can also use [cond,true,false] syntax.
 
     [
       div => [
-        if => [$loggedin, "You are logged in!", false => "Log in now!"]
+        if => [$loggedin, "You are logged in!", "Log in now!"]
       ]
     ]
 
@@ -1029,7 +1029,7 @@ $(function) {
       ]
     ]
 
-=item Conditions in element attributes
+=item Conditions in element attributes (experimental)
 
     [
       div => { if => { cond => $loggedin, true => { class => "green"}, false => { class => "red" } } _ => "My Account" }
@@ -1360,7 +1360,7 @@ C<XML::FromArrayref (last updated 2013)>
 
 How this is used in Dancer:
 
-C<Dancer2::Template::HTML::Obj2HTML>
+C<Dancer2::Template::Obj2HTML>
 
 And a different way of routing based on the presence of files, which are
 processed as C<HTML::Obj2HTML> objects if they return an arrayref.
