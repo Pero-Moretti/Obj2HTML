@@ -1056,6 +1056,10 @@ Obj2HTML object:
 Whenever you use a component in this way the contents of the hashref are passed
 to the component as $args.
 
+The component is called using a perl 'do'. If the result of calling the file
+is a coderef, the coderef is cached and the file is not called directly again.
+The coderef is then called with a single argument, the $args hashref.
+
 =item Registering Extensions
 
 Components are called when needed. A better approach for heavily used, more
