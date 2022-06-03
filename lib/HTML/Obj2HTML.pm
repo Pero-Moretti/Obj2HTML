@@ -1,6 +1,6 @@
 package HTML::Obj2HTML;
 
-$HTML::Obj2HTML::VERSION = 'v0.1.1';
+$HTML::Obj2HTML::VERSION = '0.11';
 
 use strict;
 use warnings;
