@@ -1,6 +1,6 @@
 package HTML::Obj2HTML;
 
-$HTML::Obj2HTML::VERSION = '0.11';
+$HTML::Obj2HTML::VERSION = '0.12';
 
 use strict;
 use warnings;
@@ -448,6 +448,7 @@ sub gen {
   my $o = shift;
   my $ret = "";
 
+  if (!defined $o) { return ""; }
   if (!ref $o) {
     $o = web_escape($o);
     return $o;
@@ -504,12 +505,14 @@ sub gen {
     }
     # Typically linking to another file will return an arrayref, but could equally return a hashref to also set the
     # attributes of the element calling it
-    if (!ref $attr && $attr =~ /staticfile:(.+)/) {
-      $attr = HTML::Obj2HTML::fetchraw($1);
-    } elsif (!ref $attr && $attr =~ /file:(.+)/) {
-      $attr = HTML::Obj2HTML::fetch($1);
-    } elsif (!ref $attr && $attr =~ /raw:(.+)/) {
-      $attr = HTML::Obj2HTML::fetchraw($1);
+    if ($attr && !ref $attr) {
+      if ($attr =~ /staticfile:(.+)/) {
+        $attr = HTML::Obj2HTML::fetchraw($1);
+      } elsif ($attr =~ /file:(.+)/) {
+        $attr = HTML::Obj2HTML::fetch($1);
+      } elsif ($attr =~ /raw:(.+)/) {
+        $attr = HTML::Obj2HTML::fetchraw($1);
+      }
     }
 
     # Run the current tag through extentions
@@ -796,7 +799,9 @@ sub format_attr {
 }
 sub substitute_dictionary {
   my $val = shift;
-  $val =~ s/%([A-Za-z0-9]+)%/$dictionary{$1}/g;
+  if ($val) {
+    $val =~ s/%([A-Za-z0-9]+)%/$dictionary{$1}/g;
+  }
   return $val;
 }
 sub web_escape {
