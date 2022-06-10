@@ -330,7 +330,7 @@ HTML::Obj2HTML::register_extension("submit", {
   tag => "",
   before => sub {
     my $obj = shift;
-    if (ref $obj ne "HASH") { return ""; }
+    if (ref $obj ne "HASH") { $obj = { _ => $obj }; }
     my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
@@ -347,7 +347,7 @@ HTML::Obj2HTML::register_extension("cancel", {
   tag => "",
   before => sub {
     my $obj = shift;
-    if (ref $obj ne "HASH") { return ""; }
+    if (ref $obj ne "HASH") { $obj = { _ => $obj }; }
     my $readonly = HTML::Obj2HTML::get_opt("readonly") || $obj->{readonly};
     delete($obj->{readonly});
     if ($readonly) {
@@ -364,7 +364,7 @@ HTML::Obj2HTML::register_extension("helplabel", {
   tag => "label",
   before => sub {
     my $o = shift;
-    if (ref $o ne "HASH") { return ""; }
+    if (ref $obj ne "HASH") { $obj = { helptext => $obj }; }
     $o->{_} = [ _ => $o->{label} ];
     if ($o->{helptext}) {
       push(@{$o->{_}}, help => { text => $o->{helptext} });
@@ -381,7 +381,7 @@ HTML::Obj2HTML::register_extension("helplabel", {
 
 sub genhelplabel {
   my $obj = shift;
-  if (ref $obj ne "HASH") { return ""; }
+  if (ref $obj ne "HASH") { $obj = { _ => $obj }; }
   if ($obj->{label}) {
     my $label = $obj->{label};
     if ($obj->{helptext}) {

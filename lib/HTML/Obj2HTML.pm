@@ -33,6 +33,8 @@ my $snippets = {};
 # A dictionary of substitutions are stored here and can be referenced in _content_
 my %dictionary;
 
+my $file_ext = ".po";
+
 my %dofiles;
 
 # Whether or not to close empty tags with /
@@ -52,28 +54,12 @@ plugins();
 
 sub import {
   my @extra = ();
+  my $loadcomponents = 0;
+  my $ext;
   while (my $opt = shift) {
     if ($opt eq "components") {
       my $arg = shift;
-      foreach my $file (split("\n", `find $arg -name "*.po"`)) {
-        chomp($file);
-        my $l = $file;
-        $l =~ s/$arg\///;
-        $l =~ s/\.po$//;
-        $l =~ s/\//::/g;
-        #print STDERR "HTML::Obj2HTML registering component $l\n";
-        HTML::Obj2HTML::register_extension($l, {
-          tag => "",
-          before => sub {
-            my $o = shift;
-            if (ref $o eq "HASH") {
-              return HTML::Obj2HTML::fetch($file, $o);
-            } else {
-              return HTML::Obj2HTML::fetch($file, { _ => $o });
-            }
-          }
-        });
-      }
+      $loadcomponents = $arg;
     }
     elsif ($opt eq "default_currency") {
       $default_currency = shift;
@@ -87,8 +73,33 @@ sub import {
     elsif ($opt eq "html_fromarrayref_format") {
       $html_fromarrayref_format = shift;
     }
+    elsif ($opt eq "file_extension") {
+      $file_ext = shift;
+      $file_ext =~ s/[\/\n\r]//g;
+    }
     else {
       push(@extra, $opt);
+    }
+  }
+  if ($loadcomponents) {
+    foreach my $file (split("\n", `find $loadcomponents -name "*${file_ext}"`)) {
+      chomp($file);
+      my $l = $file;
+      $l =~ s/$arg\///;
+      $l =~ s/${file_ext}$//;
+      $l =~ s/\//::/g;
+      #print STDERR "HTML::Obj2HTML registering component $l\n";
+      HTML::Obj2HTML::register_extension($l, {
+        tag => "",
+        before => sub {
+          my $o = shift;
+          if (ref $o eq "HASH") {
+            return HTML::Obj2HTML::fetch($file, $o);
+          } else {
+            return HTML::Obj2HTML::fetch($file, { _ => $o });
+          }
+        }
+      });
     }
   }
 }
@@ -635,7 +646,7 @@ sub gen {
       }
 
     } elsif ($tag eq "include") {
-      $ret .= HTML::Obj2HTML::gen(HTML::Obj2HTML::fetch($o->{src}.".po", $attr));
+      $ret .= HTML::Obj2HTML::gen(HTML::Obj2HTML::fetch($o->{src}.$file_ext, $attr));
 
     } elsif ($tag eq "javascript") {
       $ret .= "<script language='javascript' type='text/javascript' defer='1'><!--\n$attr\n//--></script>";
@@ -866,7 +877,11 @@ HTML::Obj2HTML - Create HTML from a arrays and hashes
 
 This is the relative path from the current working directory to components.
 Obj2HTML will find all *.po files and automatically register elements that when
-called within your object executes the file. (See C<fetch()>)
+called within your object executes the file. (See C<fetch()>);
+
+Note, you can change the extension searched for with an import argument:
+
+    use HTML::Obj2HTML file_extension => ".po"
 
 =item * C<default_currency>
 
@@ -1015,6 +1030,8 @@ You can also use [cond,true,false] syntax.
     [
        div => include("path/to/file")
     ]
+
+You should exclude the file extension. It will be added automatically. By default this is "*.po" but can be changed.
 
 =item Add some javascript
 
