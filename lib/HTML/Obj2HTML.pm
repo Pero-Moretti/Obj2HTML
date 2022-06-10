@@ -831,7 +831,7 @@ sub markdown {
   my $txt = shift;
   $txt = substitute_dictionary($txt);
   my $m = new Text::Markdown;
-  my $val = $m->markdown($txt);
+  my $val = $m->markdown(HTML::Entities::encode($txt));
   return $val;
 }
 
