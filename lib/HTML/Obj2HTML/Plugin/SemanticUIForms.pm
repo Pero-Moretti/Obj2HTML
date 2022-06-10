@@ -364,7 +364,7 @@ HTML::Obj2HTML::register_extension("helplabel", {
   tag => "label",
   before => sub {
     my $o = shift;
-    if (ref $obj ne "HASH") { $obj = { helptext => $obj }; }
+    if (ref $o ne "HASH") { $o = { helptext => $o }; }
     $o->{_} = [ _ => $o->{label} ];
     if ($o->{helptext}) {
       push(@{$o->{_}}, help => { text => $o->{helptext} });

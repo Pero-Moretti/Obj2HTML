@@ -85,7 +85,7 @@ sub import {
     foreach my $file (split("\n", `find $loadcomponents -name "*${file_ext}"`)) {
       chomp($file);
       my $l = $file;
-      $l =~ s/$arg\///;
+      $l =~ s/$loadcomponents\///;
       $l =~ s/${file_ext}$//;
       $l =~ s/\//::/g;
       #print STDERR "HTML::Obj2HTML registering component $l\n";
