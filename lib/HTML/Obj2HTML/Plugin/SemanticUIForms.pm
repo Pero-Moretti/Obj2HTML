@@ -384,8 +384,12 @@ sub genhelplabel {
   if (ref $obj ne "HASH") { $obj = { _ => $obj }; }
   if ($obj->{label}) {
     my $label = $obj->{label};
+    my @errorlabel = ();
+    if ($obj->{error}) {
+      @errorlabel = (i => { style => 'margin-left: 5px;', class => 'red circular icon exclamation', 'data-text' => $obj->{error} });
+    }
     if ($obj->{helptext}) {
-      $label = [ _ => $label, i => { style => 'margin-left: 5px;', class => 'blue circular icon help', 'data-content' => $obj->{helptext}, _ => [] } ];
+      $label = [ _ => $label, \@errorlabel, i => { style => 'margin-left: 5px;', class => 'blue circular icon help', 'data-content' => $obj->{helptext}, _ => [] } ];
       delete($obj->{helptext});
     }
     if ($obj->{helphtml}) {
@@ -412,6 +416,10 @@ sub commonfield {
   if ($label) {
     unshift(@{$field}, "label", $label);
   };
+  if ($obj->error) {
+    $class .= " error";
+    delete($obj->{error});
+  }
   if ($obj->{uiwidth}) {
     $class .= " $semanticnumbers[$obj->{uiwidth}] wide";
     delete($obj->{uiwidth});
